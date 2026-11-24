@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Work Investigator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f4fa;
+            margin: 0;
+            color: #24345c;
+        }
+
+        nav {
+            background: #243b70;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        nav h2 {
+            color: white;
+            margin: 0;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 45px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        }
+
+        h1 {
+            text-align: center;
+            color: #24345c;
+        }
+
+        .description {
+            text-align: center;
+            color: #68758a;
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 13px;
+            margin: 10px 0 20px;
+            border: 1px solid #ccd3e0;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #354fc5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #243b9c;
+        }
+
+        .result-card {
+            background: #eaf7ee;
+            padding: 18px;
+            margin-top: 25px;
+            border-radius: 8px;
+        }
+
+        .status {
+            color: green;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            nav a {
+                margin: 8px;
+            }
+
+            .container {
+                margin: 25px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <h2>Business Investigator</h2>
+
+        <div>
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/history">History</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <h1>Business Work Investigator</h1>
+
+        <p class="description">
+            Enter business details to begin an investigation.
+        </p>
+
+        <form action="/investigate" method="POST">
+
+            <label>Business Name</label>
+            <input type="text"
+                   name="businessName"
+                   placeholder="Enter business name"
+                   required>
+
+            <label>Industry</label>
+            <select name="industry" required>
+                <option value="">Select Industry</option>
+                <option>Technology</option>
+                <option>Healthcare</option>
+                <option>Education</option>
+                <option>Retail</option>
+                <option>Finance</option>
+                <option>Other</option>
+            </select>
+
+            <label>Business Location</label>
+            <input type="text"
+                   name="location"
+                   placeholder="Enter city or country"
+                   required>
+
+            <button type="submit">Investigate Business</button>
+
+        </form>
+
+        {% if business_name %}
+        <div class="result-card">
+
+            <h2>Investigation Report</h2>
+
+            <p><strong>Business:</strong> {{ business_name }}</p>
+            <p><strong>Industry:</strong> {{ industry }}</p>
+            <p><strong>Location:</strong> {{ location }}</p>
+
+            <p><strong>Status:</strong>
+                <span class="status">Request Received</span>
+            </p>
+
+            <p>Your investigation request has been successfully submitted.</p>
+
+        </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>

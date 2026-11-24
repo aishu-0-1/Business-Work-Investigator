@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Investigation</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+            color: #222;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 40px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #00000015;
+        }
+
+        h1 {
+            color: #243b64;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            color: #777;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            font-weight: bold;
+            color: #243b64;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        button, .btn {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button {
+            background: #198754;
+        }
+
+        .back {
+            background: #243b64;
+        }
+
+        button:hover, .btn:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Edit Investigation</h1>
+
+    <p>Update your business investigation details.</p>
+
+    <form method="POST">
+
+        <label>Business Name</label>
+        <input
+            type="text"
+            name="businessName"
+            value="{{ investigation.business_name }}"
+            required
+        >
+
+        <label>Industry</label>
+        <input
+            type="text"
+            name="industry"
+            value="{{ investigation.industry }}"
+            required
+        >
+
+        <label>Location</label>
+        <input
+            type="text"
+            name="location"
+            value="{{ investigation.location }}"
+            required
+        >
+
+        <div class="buttons">
+
+            <button type="submit">
+                Update Investigation
+            </button>
+
+            <a href="/history" class="btn back">
+                Back to History
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>

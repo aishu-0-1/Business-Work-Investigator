@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Business Investigation Report</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+            color: #222;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 30px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #00000015;
+        }
+
+        h1 {
+            text-align: center;
+            color: #243b64;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 30px;
+        }
+
+        .report-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 18px;
+            border-bottom: 1px solid #eee;
+            gap: 15px;
+        }
+
+        .report-row strong {
+            color: #243b64;
+        }
+
+        .status {
+            font-weight: bold;
+            color: #198754;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .back {
+            background: #243b64;
+        }
+
+        .dashboard {
+            background: #0d6efd;
+        }
+
+        .print {
+            background: #198754;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .buttons {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Business Investigation Report</h1>
+
+    <p class="subtitle">
+        Business Work Investigator
+    </p>
+
+    <div class="report-row">
+        <strong>Investigation ID</strong>
+        <span>{{ investigation.id }}</span>
+    </div>
+
+    <div class="report-row">
+        <strong>Business Name</strong>
+        <span>{{ investigation.business_name }}</span>
+    </div>
+
+    <div class="report-row">
+        <strong>Industry</strong>
+        <span>{{ investigation.industry }}</span>
+    </div>
+
+    <div class="report-row">
+        <strong>Location</strong>
+        <span>{{ investigation.location }}</span>
+    </div>
+
+    <div class="report-row">
+        <strong>Status</strong>
+        <span class="status">{{ investigation.status }}</span>
+    </div>
+
+    <div class="buttons">
+
+        <a href="/history" class="btn back">
+            Back to History
+        </a>
+
+        <a href="/dashboard" class="btn dashboard">
+            Dashboard
+        </a>
+
+        <button onclick="window.print()" class="btn print">
+            Print Report
+        </button>
+
+    </div>
+
+</div>
+
+</body>
+</html>

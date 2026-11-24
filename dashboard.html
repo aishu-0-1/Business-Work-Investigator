@@ -1,0 +1,357 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Work Investigator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 25px;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        header {
+            background: #263b80;
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin-top: 0;
+        }
+
+        nav {
+            margin: 20px 0;
+        }
+
+        nav a {
+            display: inline-block;
+            text-decoration: none;
+            background: white;
+            color: #263b80;
+            padding: 10px 16px;
+            border-radius: 7px;
+            margin: 5px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            background: #263b80;
+            color: white;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+        }
+
+        .card h3 {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .card h2 {
+            color: #263b80;
+            font-size: 30px;
+        }
+
+        .section {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+        }
+
+        .section h2 {
+            color: #263b80;
+            margin-top: 0;
+        }
+
+        .chart-container {
+            max-width: 650px;
+            margin: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #263b80;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f5f7fc;
+        }
+
+        .pending {
+            color: #d99800;
+            font-weight: bold;
+        }
+
+        .in-progress {
+            color: #0d6efd;
+            font-weight: bold;
+        }
+
+        .completed {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            header {
+                padding: 18px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <header>
+        <h1>Business Work Investigator</h1>
+        <p>Business Investigation & Analytics Dashboard</p>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="/">Home</a>
+        <a href="/history">Investigation History</a>
+        <a href="/export">Export CSV</a>
+    </nav>
+
+    <!-- Statistics -->
+    <div class="stats">
+
+        <div class="card">
+            <h3>Total Investigations</h3>
+            <h2>{{ total_investigations }}</h2>
+        </div>
+
+        <div class="card">
+            <h3>Unique Businesses</h3>
+            <h2>{{ total_businesses }}</h2>
+        </div>
+
+        <div class="card">
+            <h3>Pending</h3>
+            <h2>{{ pending_count }}</h2>
+        </div>
+
+        <div class="card">
+            <h3>In Progress</h3>
+            <h2>{{ in_progress_count }}</h2>
+        </div>
+
+        <div class="card">
+            <h3>Completed</h3>
+            <h2>{{ completed_count }}</h2>
+        </div>
+
+    </div>
+
+    <!-- Industry Statistics -->
+    <div class="section">
+        <h2>Industry Statistics</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Industry</th>
+                    <th>Total Investigations</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for industry in industry_stats %}
+                <tr>
+                    <td>{{ industry.industry }}</td>
+                    <td>{{ industry.total }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="2">No data available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Industry Chart -->
+    <div class="section">
+        <h2>Industry Analysis</h2>
+        <div class="chart-container">
+            <canvas id="industryChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Status Chart -->
+    <div class="section">
+        <h2>Investigation Status Analysis</h2>
+        <div class="chart-container">
+            <canvas id="statusChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Investigations -->
+    <div class="section">
+        <h2>Recent Investigations</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Business Name</th>
+                    <th>Industry</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in recent_investigations %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.business_name }}</td>
+                    <td>{{ item.industry }}</td>
+                    <td>{{ item.location }}</td>
+                    <td class="{% if item.status == 'Pending' %}pending{% elif item.status == 'In Progress' %}in-progress{% elif item.status == 'Completed' %}completed{% endif %}">
+                        {{ item.status }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">No investigations found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Industry chart data
+    const industryLabels = [
+        {% for industry in industry_stats %}
+            {{ industry.industry | tojson }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const industryValues = [
+        {% for industry in industry_stats %}
+            {{ industry.total }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    // Industry Bar Chart
+    new Chart(document.getElementById("industryChart"), {
+        type: "bar",
+        data: {
+            labels: industryLabels,
+            datasets: [{
+                label: "Investigations by Industry",
+                data: industryValues,
+                backgroundColor: [
+                    "#5479D0",
+                    "#8B6FD1",
+                    "#41A89A",
+                    "#E6AA52",
+                    "#E57373"
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Status Doughnut Chart
+    new Chart(document.getElementById("statusChart"), {
+        type: "doughnut",
+        data: {
+            labels: ["Pending", "In Progress", "Completed"],
+            datasets: [{
+                data: [
+                    {{ pending_count }},
+                    {{ in_progress_count }},
+                    {{ completed_count }}
+                ],
+                backgroundColor: [
+                    "#F0B429",
+                    "#0D6EFD",
+                    "#198754"
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>
+
+</body>
+</html>
