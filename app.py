@@ -1,14 +1,26 @@
+
 from flask import Flask, render_template, request, Response, redirect
 import sqlite3
 import csv
 import io
+import os
+
+from db import create_database
 
 app = Flask(__name__)
+
+# Create the database table automatically
+create_database()
 
 
 # Database connection
 def get_db_connection():
-    connection = sqlite3.connect("business.db")
+    database_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "business.db"
+    )
+
+    connection = sqlite3.connect(database_path)
     connection.row_factory = sqlite3.Row
     return connection
 
@@ -171,7 +183,11 @@ def export():
     writer = csv.writer(output)
 
     writer.writerow([
-        "ID", "Business Name", "Industry", "Location", "Status"
+        "ID",
+        "Business Name",
+        "Industry",
+        "Location",
+        "Status"
     ])
 
     for item in investigations:
