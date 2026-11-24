@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, Response, redirect
 import sqlite3
 import csv
