@@ -1,0 +1,13 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Business Work Investigator",
+  "short_name": "Business Investigator",
+  "description": "A simple application to manage and track business investigations.",
+  "orientation": "any",
+  "scope": "/",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "id": "/"
+}
