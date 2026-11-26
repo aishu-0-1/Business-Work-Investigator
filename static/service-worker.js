@@ -1,0 +1,17 @@
+
+const CACHE_NAME = "business-investigator-v1";
+
+self.addEventListener("install", (event) => {
+    self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+    event.waitUntil(
+        self.clients.claim()
+    );
+});
+
+self.addEventListener("fetch", (event) => {
+    // Use the network for website requests.
+    // This avoids showing outdated investigation data.
+});
