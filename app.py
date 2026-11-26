@@ -1,25 +1,36 @@
-from flask import Flask, render_template, request, Response, redirect
+
+from flask import (
+    Flask, render_template, request, Response,
+    redirect, url_for, send_from_directory
+)
 import sqlite3
 import csv
 import io
 import os
 
-from db import create_database
+from db import create_database, DATABASE_PATH
 
 app = Flask(__name__)
 
-# Create the database table automatically
+# Create database automatically
 create_database()
+
+
+# PWA Service Worker
+@app.route("/service-worker.js")
+def service_worker():
+    response = send_from_directory(
+        os.path.join(app.root_path, "static"),
+        "service-worker.js",
+        mimetype="application/javascript"
+    )
+    response.headers["Service-Worker-Allowed"] = "/"
+    return response
 
 
 # Database connection
 def get_db_connection():
-    database_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "business.db"
-    )
-
-    connection = sqlite3.connect(database_path)
+    connection = sqlite3.connect(DATABASE_PATH)
     connection.row_factory = sqlite3.Row
     return connection
 
@@ -42,24 +53,16 @@ def investigate():
 
     connection = get_db_connection()
 
-    connection.execute(
-        """
+    connection.execute("""
         INSERT INTO investigations
         (business_name, industry, location, status)
         VALUES (?, ?, ?, ?)
-        """,
-        (business_name, industry, location, "Pending")
-    )
+    """, (business_name, industry, location, "Pending"))
 
     connection.commit()
     connection.close()
 
-    return render_template(
-        "index.html",
-        business_name=business_name,
-        industry=industry,
-        location=location
-    )
+    return redirect(url_for("history"))
 
 
 # Dashboard
@@ -87,22 +90,18 @@ def dashboard():
         "SELECT COUNT(*) FROM investigations WHERE status = 'Completed'"
     ).fetchone()[0]
 
-    industry_stats = connection.execute(
-        """
+    industry_stats = connection.execute("""
         SELECT industry, COUNT(*) AS total
         FROM investigations
         GROUP BY industry
         ORDER BY total DESC
-        """
-    ).fetchall()
+    """).fetchall()
 
-    recent_investigations = connection.execute(
-        """
+    recent_investigations = connection.execute("""
         SELECT * FROM investigations
         ORDER BY id DESC
         LIMIT 5
-        """
-    ).fetchall()
+    """).fetchall()
 
     connection.close()
 
@@ -118,7 +117,7 @@ def dashboard():
     )
 
 
-# Investigation History
+# Investigation history
 @app.route("/history")
 def history():
     connection = get_db_connection()
@@ -135,7 +134,7 @@ def history():
     )
 
 
-# Update investigation status
+# Update status
 @app.route("/update_status/<int:id>", methods=["POST"])
 def update_status(id):
     status = request.form.get("status", "").strip()
@@ -148,8 +147,7 @@ def update_status(id):
     connection = get_db_connection()
 
     investigation = connection.execute(
-        "SELECT id FROM investigations WHERE id = ?",
-        (id,)
+        "SELECT id FROM investigations WHERE id = ?", (id,)
     ).fetchone()
 
     if investigation is None:
@@ -164,10 +162,10 @@ def update_status(id):
     connection.commit()
     connection.close()
 
-    return redirect("/history")
+    return redirect(url_for("history"))
 
 
-# Export records to CSV
+# Export CSV
 @app.route("/export")
 def export():
     connection = get_db_connection()
@@ -182,11 +180,7 @@ def export():
     writer = csv.writer(output)
 
     writer.writerow([
-        "ID",
-        "Business Name",
-        "Industry",
-        "Location",
-        "Status"
+        "ID", "Business Name", "Industry", "Location", "Status"
     ])
 
     for item in investigations:
@@ -222,23 +216,19 @@ def edit_investigation(id):
             connection.close()
             return "Please fill in all fields.", 400
 
-        connection.execute(
-            """
+        connection.execute("""
             UPDATE investigations
             SET business_name = ?, industry = ?, location = ?
             WHERE id = ?
-            """,
-            (business_name, industry, location, id)
-        )
+        """, (business_name, industry, location, id))
 
         connection.commit()
         connection.close()
 
-        return redirect("/history")
+        return redirect(url_for("history"))
 
     investigation = connection.execute(
-        "SELECT * FROM investigations WHERE id = ?",
-        (id,)
+        "SELECT * FROM investigations WHERE id = ?", (id,)
     ).fetchone()
 
     connection.close()
@@ -257,34 +247,23 @@ def edit_investigation(id):
 def delete_investigation(id):
     connection = get_db_connection()
 
-    investigation = connection.execute(
-        "SELECT id FROM investigations WHERE id = ?",
-        (id,)
-    ).fetchone()
-
-    if investigation is None:
-        connection.close()
-        return "Investigation not found.", 404
-
     connection.execute(
-        "DELETE FROM investigations WHERE id = ?",
-        (id,)
+        "DELETE FROM investigations WHERE id = ?", (id,)
     )
 
     connection.commit()
     connection.close()
 
-    return redirect("/history")
+    return redirect(url_for("history"))
 
 
-# Business Investigation Report
+# Business report
 @app.route("/report/<int:id>")
 def business_report(id):
     connection = get_db_connection()
 
     investigation = connection.execute(
-        "SELECT * FROM investigations WHERE id = ?",
-        (id,)
+        "SELECT * FROM investigations WHERE id = ?", (id,)
     ).fetchone()
 
     connection.close()
