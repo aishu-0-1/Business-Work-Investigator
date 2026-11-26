@@ -6,12 +6,9 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-    event.waitUntil(
-        self.clients.claim()
-    );
+    event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener("fetch", (event) => {
     // Use the network for website requests.
-    // This avoids showing outdated investigation data.
 });
