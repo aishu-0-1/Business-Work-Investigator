@@ -1,7 +1,18 @@
-import sqlite3
 
+import sqlite3
+import os
+
+# Get the project folder location
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Database file path
+DATABASE_PATH = os.path.join(BASE_DIR, "business.db")
+
+
+# Create or update database
 def create_database():
-    connection = sqlite3.connect("business.db")
+
+    connection = sqlite3.connect(DATABASE_PATH)
     cursor = connection.cursor()
 
     cursor.execute("""
@@ -14,11 +25,14 @@ def create_database():
         )
     """)
 
-    # Check whether the status column already exists
+    # Check existing columns
     cursor.execute("PRAGMA table_info(investigations)")
-    columns = [column[1] for column in cursor.fetchall()]
 
-    # Add status to the existing database without deleting records
+    columns = [
+        column[1] for column in cursor.fetchall()
+    ]
+
+    # Add status column if it does not exist
     if "status" not in columns:
         cursor.execute("""
             ALTER TABLE investigations
@@ -29,6 +43,7 @@ def create_database():
     connection.close()
 
     print("Database updated successfully!")
+
 
 if __name__ == "__main__":
     create_database()
