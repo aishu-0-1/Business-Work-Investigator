@@ -5,14 +5,12 @@ from flask import (
     request,
     Response,
     redirect,
-    url_for,
-    send_from_directory
+    url_for
 )
 
 import sqlite3
 import csv
 import io
-import os
 
 from db import create_database, DATABASE_PATH
 
@@ -28,15 +26,10 @@ create_database()
 
 @app.route("/service-worker.js")
 def service_worker():
-    response = send_from_directory(
-        os.path.join(app.root_path, "static"),
-        "service-worker.js",
-        mimetype="application/javascript"
-    )
-
+    response = app.send_static_file("service-worker.js")
+    response.headers["Content-Type"] = "application/javascript"
     response.headers["Service-Worker-Allowed"] = "/"
     response.headers["Cache-Control"] = "no-cache"
-
     return response
 
 
@@ -66,17 +59,9 @@ def home():
 @app.route("/investigate", methods=["POST"])
 def investigate():
 
-    business_name = request.form.get(
-        "businessName", ""
-    ).strip()
-
-    industry = request.form.get(
-        "industry", ""
-    ).strip()
-
-    location = request.form.get(
-        "location", ""
-    ).strip()
+    business_name = request.form.get("businessName", "").strip()
+    industry = request.form.get("industry", "").strip()
+    location = request.form.get("location", "").strip()
 
     if not business_name or not industry or not location:
         return "Please fill in all fields.", 400
@@ -87,12 +72,7 @@ def investigate():
         INSERT INTO investigations
         (business_name, industry, location, status)
         VALUES (?, ?, ?, ?)
-    """, (
-        business_name,
-        industry,
-        location,
-        "Pending"
-    ))
+    """, (business_name, industry, location, "Pending"))
 
     connection.commit()
     connection.close()
@@ -184,9 +164,7 @@ def history():
 @app.route("/update_status/<int:id>", methods=["POST"])
 def update_status(id):
 
-    status = request.form.get(
-        "status", ""
-    ).strip()
+    status = request.form.get("status", "").strip()
 
     allowed_statuses = [
         "Pending",
@@ -235,7 +213,6 @@ def export():
     connection.close()
 
     output = io.StringIO()
-
     writer = csv.writer(output)
 
     writer.writerow([
@@ -247,7 +224,6 @@ def export():
     ])
 
     for item in investigations:
-
         writer.writerow([
             item["id"],
             item["business_name"],
@@ -277,17 +253,9 @@ def edit_investigation(id):
 
     if request.method == "POST":
 
-        business_name = request.form.get(
-            "businessName", ""
-        ).strip()
-
-        industry = request.form.get(
-            "industry", ""
-        ).strip()
-
-        location = request.form.get(
-            "location", ""
-        ).strip()
+        business_name = request.form.get("businessName", "").strip()
+        industry = request.form.get("industry", "").strip()
+        location = request.form.get("location", "").strip()
 
         if not business_name or not industry or not location:
             connection.close()
@@ -299,12 +267,7 @@ def edit_investigation(id):
                 industry = ?,
                 location = ?
             WHERE id = ?
-        """, (
-            business_name,
-            industry,
-            location,
-            id
-        ))
+        """, (business_name, industry, location, id))
 
         connection.commit()
         connection.close()
@@ -377,4 +340,4 @@ def business_report(id):
 # =====================================
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
