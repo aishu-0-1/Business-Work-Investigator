@@ -1,8 +1,14 @@
 
 from flask import (
-    Flask, render_template, request, Response,
-    redirect, url_for, send_from_directory
+    Flask,
+    render_template,
+    request,
+    Response,
+    redirect,
+    url_for,
+    send_from_directory
 )
+
 import sqlite3
 import csv
 import io
@@ -16,7 +22,10 @@ app = Flask(__name__)
 create_database()
 
 
-# PWA Service Worker
+# =====================================
+# PWA SERVICE WORKER
+# =====================================
+
 @app.route("/service-worker.js")
 def service_worker():
     response = send_from_directory(
@@ -24,29 +33,50 @@ def service_worker():
         "service-worker.js",
         mimetype="application/javascript"
     )
+
     response.headers["Service-Worker-Allowed"] = "/"
+    response.headers["Cache-Control"] = "no-cache"
+
     return response
 
 
-# Database connection
+# =====================================
+# DATABASE CONNECTION
+# =====================================
+
 def get_db_connection():
     connection = sqlite3.connect(DATABASE_PATH)
     connection.row_factory = sqlite3.Row
     return connection
 
 
-# Home page
+# =====================================
+# HOME PAGE
+# =====================================
+
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-# Save investigation
+# =====================================
+# SAVE INVESTIGATION
+# =====================================
+
 @app.route("/investigate", methods=["POST"])
 def investigate():
-    business_name = request.form.get("businessName", "").strip()
-    industry = request.form.get("industry", "").strip()
-    location = request.form.get("location", "").strip()
+
+    business_name = request.form.get(
+        "businessName", ""
+    ).strip()
+
+    industry = request.form.get(
+        "industry", ""
+    ).strip()
+
+    location = request.form.get(
+        "location", ""
+    ).strip()
 
     if not business_name or not industry or not location:
         return "Please fill in all fields.", 400
@@ -57,7 +87,12 @@ def investigate():
         INSERT INTO investigations
         (business_name, industry, location, status)
         VALUES (?, ?, ?, ?)
-    """, (business_name, industry, location, "Pending"))
+    """, (
+        business_name,
+        industry,
+        location,
+        "Pending"
+    ))
 
     connection.commit()
     connection.close()
@@ -65,9 +100,13 @@ def investigate():
     return redirect(url_for("history"))
 
 
-# Dashboard
+# =====================================
+# DASHBOARD
+# =====================================
+
 @app.route("/dashboard")
 def dashboard():
+
     connection = get_db_connection()
 
     total_investigations = connection.execute(
@@ -117,9 +156,13 @@ def dashboard():
     )
 
 
-# Investigation history
+# =====================================
+# INVESTIGATION HISTORY
+# =====================================
+
 @app.route("/history")
 def history():
+
     connection = get_db_connection()
 
     investigations = connection.execute(
@@ -134,12 +177,22 @@ def history():
     )
 
 
-# Update status
+# =====================================
+# UPDATE STATUS
+# =====================================
+
 @app.route("/update_status/<int:id>", methods=["POST"])
 def update_status(id):
-    status = request.form.get("status", "").strip()
 
-    allowed_statuses = ["Pending", "In Progress", "Completed"]
+    status = request.form.get(
+        "status", ""
+    ).strip()
+
+    allowed_statuses = [
+        "Pending",
+        "In Progress",
+        "Completed"
+    ]
 
     if status not in allowed_statuses:
         return "Invalid status selected.", 400
@@ -147,7 +200,8 @@ def update_status(id):
     connection = get_db_connection()
 
     investigation = connection.execute(
-        "SELECT id FROM investigations WHERE id = ?", (id,)
+        "SELECT id FROM investigations WHERE id = ?",
+        (id,)
     ).fetchone()
 
     if investigation is None:
@@ -165,9 +219,13 @@ def update_status(id):
     return redirect(url_for("history"))
 
 
-# Export CSV
+# =====================================
+# EXPORT CSV
+# =====================================
+
 @app.route("/export")
 def export():
+
     connection = get_db_connection()
 
     investigations = connection.execute(
@@ -177,13 +235,19 @@ def export():
     connection.close()
 
     output = io.StringIO()
+
     writer = csv.writer(output)
 
     writer.writerow([
-        "ID", "Business Name", "Industry", "Location", "Status"
+        "ID",
+        "Business Name",
+        "Industry",
+        "Location",
+        "Status"
     ])
 
     for item in investigations:
+
         writer.writerow([
             item["id"],
             item["business_name"],
@@ -202,15 +266,28 @@ def export():
     )
 
 
-# Edit investigation
+# =====================================
+# EDIT INVESTIGATION
+# =====================================
+
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit_investigation(id):
+
     connection = get_db_connection()
 
     if request.method == "POST":
-        business_name = request.form.get("businessName", "").strip()
-        industry = request.form.get("industry", "").strip()
-        location = request.form.get("location", "").strip()
+
+        business_name = request.form.get(
+            "businessName", ""
+        ).strip()
+
+        industry = request.form.get(
+            "industry", ""
+        ).strip()
+
+        location = request.form.get(
+            "location", ""
+        ).strip()
 
         if not business_name or not industry or not location:
             connection.close()
@@ -218,9 +295,16 @@ def edit_investigation(id):
 
         connection.execute("""
             UPDATE investigations
-            SET business_name = ?, industry = ?, location = ?
+            SET business_name = ?,
+                industry = ?,
+                location = ?
             WHERE id = ?
-        """, (business_name, industry, location, id))
+        """, (
+            business_name,
+            industry,
+            location,
+            id
+        ))
 
         connection.commit()
         connection.close()
@@ -228,7 +312,8 @@ def edit_investigation(id):
         return redirect(url_for("history"))
 
     investigation = connection.execute(
-        "SELECT * FROM investigations WHERE id = ?", (id,)
+        "SELECT * FROM investigations WHERE id = ?",
+        (id,)
     ).fetchone()
 
     connection.close()
@@ -242,13 +327,18 @@ def edit_investigation(id):
     )
 
 
-# Delete investigation
+# =====================================
+# DELETE INVESTIGATION
+# =====================================
+
 @app.route("/delete/<int:id>", methods=["POST"])
 def delete_investigation(id):
+
     connection = get_db_connection()
 
     connection.execute(
-        "DELETE FROM investigations WHERE id = ?", (id,)
+        "DELETE FROM investigations WHERE id = ?",
+        (id,)
     )
 
     connection.commit()
@@ -257,13 +347,18 @@ def delete_investigation(id):
     return redirect(url_for("history"))
 
 
-# Business report
+# =====================================
+# BUSINESS REPORT
+# =====================================
+
 @app.route("/report/<int:id>")
 def business_report(id):
+
     connection = get_db_connection()
 
     investigation = connection.execute(
-        "SELECT * FROM investigations WHERE id = ?", (id,)
+        "SELECT * FROM investigations WHERE id = ?",
+        (id,)
     ).fetchone()
 
     connection.close()
@@ -277,6 +372,9 @@ def business_report(id):
     )
 
 
-# Run application
+# =====================================
+# RUN APPLICATION
+# =====================================
+
 if __name__ == "__main__":
     app.run(debug=True)
